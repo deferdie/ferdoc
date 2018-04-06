@@ -13,5 +13,8 @@
             "email": "deferdie@gmail.com"
         }
     ],
-    "minimum-stability": "dev"
+    "minimum-stability": "dev",
+    "bin": [
+        "ferdoc"
+    ]
 }
