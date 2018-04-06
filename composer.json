@@ -5,5 +5,14 @@
     "require": {
         "symfony/console": "^4.0",
         "symfony/process": "^4.0"
-    }
+    },
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Ferdie De Oliveira",
+            "email": "deferdie@gmail.com"
+        }
+    ],
+    "minimum-stability": "dev"
+    
 }
