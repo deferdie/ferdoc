@@ -1,4 +1,7 @@
 {
+    "name": "deferdie/ferdoc",
+    "description": "A Docker helper for Laravel",
+    "type": "Symphone console",
     "require": {
         "symfony/console": "^4.0",
         "symfony/process": "^4.0"
