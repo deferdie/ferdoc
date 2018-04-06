@@ -21,9 +21,35 @@ $app->register('composer install')
 
         $process->setTimeout(400);
 
-        $process->run();
+        $process->run(function ($type, $buffer) {
+            if (Process::ERR === $type) {
+                echo 'ERR > '.$buffer;
+            } else {
+                echo 'OUT > '.$buffer;
+            }
+        });
 
         $output->writeln($process->getOutput());
-    });
+});
+
+$app->register('npm install')
+    ->addArgument('name')
+    ->setCode(function(InputInterface $input, OutputInterface $output){
+        $process = new Process('docker-compose run --rm -w /var/www/html node npm install');
+
+        $output->writeln('Running NPM install, please wait');
+
+        $process->setTimeout(400);
+
+        $process->run(function ($type, $buffer) {
+            if (Process::ERR === $type) {
+                echo 'ERR > '.$buffer;
+            } else {
+                echo 'OUT > '.$buffer;
+            }
+        });
+
+        $output->writeln($process->getOutput());
+});
 
 $app->run();
