@@ -1,0 +1,24 @@
+#! /usr/bin/env php
+
+<?php
+
+use Symfony\Component\Console\Application;
+use Symfony\Component\Console\Input\InputInterface;
+use Symfony\Component\Console\Output\OutputInterface;
+use Symfony\Component\Process\Process;
+use Symfony\Component\Process\Exception\ProcessFailedException;
+
+require('vendor/autoload.php');
+
+$app = new Application('ferdoc');
+
+$app->register('composer install')
+    ->addArgument('name')
+    ->setCode(function(InputInterface $input, OutputInterface $output){
+        $process = new Process('docker-compose run --rm -w /var/www/html app composer install');
+        $process->run();
+
+        $output->writeln($process->getOutput());
+    });
+
+$app->run();
