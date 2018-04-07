@@ -1,0 +1,2 @@
+docker build --no-cache -f app/Dockerfile -t deferdie/app:latest ./app
+docker build --no-cache -f node/Dockerfile -t deferdie/node:latest ./node
