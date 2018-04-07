@@ -2,6 +2,8 @@
 
 <?php
 
+require('vendor/autoload.php');
+
 use Symfony\Component\Console\Application;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputArgument;
@@ -9,8 +11,10 @@ use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Process\Process;
 use Symfony\Component\Process\Exception\ProcessFailedException;
+use Symfony\Component\Console\Question\ConfirmationQuestion;
+use Symfony\Component\Console\Question\ChoiceQuestion;
 
-require('vendor/autoload.php');
+require_once "vendor/mustangostang/spyc/spyc.php";
 
 $app = new Application('ferdoc');
 
@@ -132,5 +136,261 @@ $app->register('artisan')
 
         $output->writeln($process->getOutput());
 });
+
+
+$app->register('docker')
+    ->addArgument('init')
+    ->setCode(function(InputInterface $input, OutputInterface $output){
+        
+        $workfolder = getcwd();
+
+        $directory = scandir($workfolder);
+
+        if($input->getArgument('init'))
+        {
+            // Create a docker directory if it does not exist
+            if(!in_array('docker', $directory))
+            {
+                // Double check if it is a directory
+                if(is_dir($workfolder))
+                {
+                    $output->writeln('This will place a docker directory within your project');
+                    
+                    $output->writeln($workfolder . directorySeperator() . 'docker');
+                    
+                    mkdir($workfolder .directorySeperator(). 'docker');
+
+                    $output->writeln('<info>Directory created successfully!</info>');    
+                }
+            }
+
+            $output->writeln('<comment>This will override all the current docker directory contents</comment>');
+
+            $helper = $this->getHelper('question');
+
+            $question = new ChoiceQuestion(
+                'Would you like to proceeed? (defaults to yes)',
+                array('yes', 'no'),
+                0
+            );
+
+            $question->setErrorMessage('option %s is invalid.');
+
+            $answer = $helper->ask($input, $output, $question);
+
+            $dockerDir = $workfolder .directorySeperator(). 'docker'. directorySeperator();
+
+            if($answer == 'yes')
+            {
+
+                $dotenv = new Dotenv\Dotenv($workfolder);
+                $dotenv->load();
+
+                $appName = getenv('APP_NAME');
+
+                // Create the folder structure
+                if(!is_dir($dockerDir .'app'))
+                {
+                    mkdir($dockerDir .'app');
+                }
+                
+                if(!is_dir($dockerDir .'node'))
+                {
+                    mkdir($dockerDir .'node');
+                }
+
+                
+                $buildFile = __DIR__.directorySeperator().'src'.directorySeperator().'tempaltes'.directorySeperator().'build';
+                $nodeDockerFile = __DIR__.directorySeperator().'src'.directorySeperator().'tempaltes'.directorySeperator().'node'.directorySeperator().'Dockerfile';
+                
+                // Create the build file from the tempalte
+                copy($buildFile, $dockerDir.'build');
+                $output->writeln('<info>Created build file</info>');
+                chmod($buildFile, 777);
+                
+                copy($nodeDockerFile, $dockerDir.'node'.directorySeperator().'Dockerfile');
+                $output->writeln('<info>Created node Dockerfile</info>');
+                
+                copy(__DIR__.directorySeperator().'src'.directorySeperator().'tempaltes'.directorySeperator().'app'.directorySeperator().'default', $dockerDir.'app'.directorySeperator().'default');
+                copy(__DIR__.directorySeperator().'src'.directorySeperator().'tempaltes'.directorySeperator().'app'.directorySeperator().'Dockerfile', $dockerDir.'app'.directorySeperator().'Dockerfile');
+                copy(__DIR__.directorySeperator().'src'.directorySeperator().'tempaltes'.directorySeperator().'app'.directorySeperator().'php-fpm.conf', $dockerDir.'app'.directorySeperator().'php-fpm.conf');
+                copy(__DIR__.directorySeperator().'src'.directorySeperator().'tempaltes'.directorySeperator().'app'.directorySeperator().'supervisord.conf', $dockerDir.'app'.directorySeperator().'supervisord.conf');
+                                
+                $build = [
+                    'version' => '2',
+                    'services' => [],
+                    'networks' => [
+                        'fdnet' => [
+                            'driver' => 'bridge'
+                        ]
+                    ],
+                    'volumes' => [
+                        'mysqldata' => [
+                            'driver' => 'local'
+                        ],
+                        'redisdata' => [
+                            'driver' => 'local'
+                        ]
+                    ]
+                ];
+
+                $node = [
+                    'build' => [
+                        'context' => './docker/node',
+                        'dockerfile' => 'dockerfile'
+                    ],
+                    'image' => 'deferdie/node',
+                    'volumes' => ['.:/var/www/html'],
+                    'networks' => [
+                        'fdnet'
+                    ]
+                ];
+                
+                $appContainer = [
+                    'build' => [
+                        'context' => './docker/app',
+                        'dockerfile' => 'dockerfile'
+                    ],
+                    'image' => 'deferdie/app',
+                    'volumes' => ['.:/var/www/html'],
+                    'ports' => ['80:80'],
+                    'networks' => [
+                        'fdnet'
+                    ],
+                    'container_name' => $appName
+                ];
+
+                $build['services']['app'] = $appContainer;
+                
+                $question = new ChoiceQuestion(
+                    'Would you like mysql?',
+                    array('yes', 'no'),
+                    0
+                );
+
+                $question->setErrorMessage('option %s is invalid.');
+
+                $answer = $helper->ask($input, $output, $question);
+
+                if($answer == 'yes')
+                {
+                    $build['services']['mysql'] = mysqlConfig();
+                }
+
+                $question = new ChoiceQuestion(
+                    'Would you like redis?',
+                    array('yes', 'no'),
+                    0
+                );
+
+                $question->setErrorMessage('option %s is invalid.');
+
+                $answer = $helper->ask($input, $output, $question);
+                
+                if($answer == 'yes')
+                {
+                    $build['services']['redis'] = redisConfig();
+                }
+
+                $build['services']['node'] = $node;
+
+                // Set the docker-compose file
+                $yamlFile = fopen($workfolder.directorySeperator().'docker-compose.yml', "w") or die("Unable to open file!");
+
+                fwrite($yamlFile, trim(Spyc::YAMLDump($build), '---'));
+                fclose($yamlFile);
+
+                $output->writeln('<info>Created app directory</info>');
+            }else{
+                $output->writeln('<warning>Not generating files!</warning>');
+            }
+        }
+});
+
+$app->register('run')
+    ->setCode(function(InputInterface $input, OutputInterface $output){
+    
+        $process = new Process('docker-compose up -d');
+
+        $process->setTimeout(0);
+
+        $process->run(function ($type, $buffer) {
+            if (Process::ERR === $type) {
+                echo 'ERR > '.$buffer;
+            } else {
+                echo 'OUT > '.$buffer;
+            }
+        });
+
+        $output->writeln($process->getOutput());
+});
+
+
+$app->register('down')
+    ->setCode(function(InputInterface $input, OutputInterface $output){
+    
+        $process = new Process('docker-compose down');
+
+        $process->setTimeout(0);
+
+        $process->run(function ($type, $buffer) {
+            if (Process::ERR === $type) {
+                echo 'ERR > '.$buffer;
+            } else {
+                echo 'OUT > '.$buffer;
+            }
+        });
+
+        $output->writeln($process->getOutput());
+});
+
+// Directory directory
+function directorySeperator()
+{
+    if (strtoupper(substr(PHP_OS, 0, 3)) === 'WIN') {
+        return '\\';
+    } else {
+        return '/';
+    }
+}
+
+// Get Mysql config
+function mysqlConfig()
+{
+    return [
+        'image' => 'mysql:5.7',
+        'ports' => [
+            "3306:3306"
+        ],
+        'environment' => [
+            'MYSQL_ROOT_PASSWORD' => 'secret',
+            'MYSQL_DATABASE' => 'homestead',
+            'MYSQL_USER' => 'homestead',
+            'MYSQL_PASSWORD' => 'secret',
+        ],
+        'volumes' => [
+            'mysqldata:/var/lib/mysql'
+        ],
+        'networks' => [
+            'fdnet'
+        ]
+    ];
+}
+
+
+// Get Redis config
+function redisConfig()
+{
+    return [
+        'image' => 'redis:alpine',
+        'volumes' => [
+            'redisdata:/data'
+        ],
+        'networks' => [
+            'fdnet'
+        ]
+    ];
+}
+
 
 $app->run();
