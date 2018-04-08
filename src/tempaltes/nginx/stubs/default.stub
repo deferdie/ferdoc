@@ -1,0 +1,42 @@
+server {
+
+    listen 80;
+
+    server_name _;
+
+    root /var/www/html/public;
+
+    index index.php index.html index.htm;
+
+    location / {
+        try_files  $uri $uri/ /index.php?$query_string;
+    }
+
+    error_page 404 /404.html;
+
+
+    location ~ \.php$ {
+
+        try_files $uri $uri/ =404;
+        fastcgi_pass :PHP_FPM_CONTAINER:;
+        fastcgi_index index.php;
+        fastcgi_buffers 32 32k;
+        fastcgi_buffer_size 64k;
+        fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;
+        include fastcgi_params;
+        
+
+        # Development only, don't time out when xdebug stops execution in php container
+        # This allows developer to resume execution after x seconds.
+        fastcgi_read_timeout 600s;
+    }
+
+    location = /404.html {
+            root /var/www/html/public;
+            internal;
+    }
+
+    location ~ /\.ht {
+        deny all;
+    }
+}

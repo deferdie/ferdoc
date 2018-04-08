@@ -1,13 +1,9 @@
 {
     "name": "deferdie/ferdoc",
-    "description": "A Docker helper for Laravel",
-    "type": "bash",
-    "require": {
-        "symfony/console": "^4.0",
-        "symfony/process": "^4.0",
-        "vlucas/phpdotenv": "~2.2",
-        "mustangostang/spyc": "^0.5.0"
-    },
+    "description": "A Docker helper for PHP applications.",
+    "keywords": [
+        "Docker"
+    ],
     "license": "MIT",
     "authors": [
         {
@@ -15,8 +11,20 @@
             "email": "deferdie@gmail.com"
         }
     ],
+    "autoload": {
+        "psr-4": {
+            "Deferdie\\Docker\\Console\\": "src/"
+        }
+    },
     "minimum-stability": "dev",
     "bin": [
         "ferdoc"
-    ]
+    ],
+    "require": {
+        "symfony/yaml": "^4.1@dev",
+        "symfony/console": "^4.0",
+        "symfony/process": "^4.0",
+        "vlucas/phpdotenv": "~2.2",
+        "sebastiaanluca/php-stub-generator": "dev-master"
+    }
 }
