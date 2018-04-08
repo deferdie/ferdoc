@@ -259,7 +259,7 @@ $app->register('docker')
                 $nodeContainer = [
                     'build' => [
                         'context' => './docker/node',
-                        'dockerfile' => 'dockerfile'
+                        'dockerfile' => 'Dockerfile'
                     ],
                     'image' => 'deferdie/node',
                     'volumes' => ['.:/var/www/html'],
@@ -272,7 +272,7 @@ $app->register('docker')
                 $nginxContainer = [
                     'build' => [
                         'context' => './docker/nginx',
-                        'dockerfile' => 'dockerfile'
+                        'dockerfile' => 'Dockerfile'
                     ],
                     'image' => 'deferdie/nginx',
                     'volumes' => ['.:/var/www/html'],
@@ -286,7 +286,7 @@ $app->register('docker')
                 $phpContainer = [
                     'build' => [
                         'context' => './docker/php',
-                        'dockerfile' => 'dockerfile'
+                        'dockerfile' => 'Dockerfile'
                     ],
                     'image' => 'deferdie/php',
                     'volumes' => ['.:/var/www/html'],
@@ -299,7 +299,7 @@ $app->register('docker')
                 $appContainer = [
                     'build' => [
                         'context' => './docker/app',
-                        'dockerfile' => 'dockerfile'
+                        'dockerfile' => 'Dockerfile'
                     ],
                     'image' => 'deferdie/app',
                     'volumes' => ['.:/var/www/html'],
