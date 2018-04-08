@@ -21,7 +21,7 @@
         "ferdoc"
     ],
     "require": {
-        "symfony/yaml": "^4.1@dev",
+        "symfony/yaml": "^4.0",
         "symfony/console": "^4.0",
         "symfony/process": "^4.0",
         "vlucas/phpdotenv": "~2.2",
