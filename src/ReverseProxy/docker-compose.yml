@@ -1,0 +1,16 @@
+version: '2'
+
+services:
+  nginx-proxy:
+    image: jwilder/nginx-proxy
+    ports:
+      - "80:80"
+    volumes: ['/var/run/docker.sock:/tmp/docker.sock:ro']
+    container_name: ferdoc_nginx_proxy
+    networks: [deferdie_reverse_proxy]
+
+volumes:
+  proxyVolume: { driver: local }
+
+networks:
+  deferdie_reverse_proxy: { driver: bridge }

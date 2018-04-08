@@ -1,4 +1,4 @@
-docker build --no-cache -f app/Dockerfile -t deferdie/app:latest ./app
-docker build --no-cache -f nginx/Dockerfile -t deferdie/nginx:latest ./nginx
-docker build --no-cache -f php/Dockerfile -t deferdie/php:latest ./php
-docker build --no-cache -f node/Dockerfile -t deferdie/node:latest ./node
+docker build -f app/Dockerfile -t deferdie/app:latest ./app
+docker build -f nginx/Dockerfile -t deferdie/nginx:latest ./nginx
+docker build -f php/Dockerfile -t deferdie/php:latest ./php
+docker build -f node/Dockerfile -t deferdie/node:latest ./node

@@ -9,6 +9,7 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputOption;
 use SebastiaanLuca\StubGenerator\StubGenerator;
+use Symfony\Component\Console\Question\Question;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Yaml\Yaml;
 
@@ -192,6 +193,11 @@ class DockerInit extends Command
             'networks' => [
                 'fdnet' => [
                     'driver' => 'bridge'
+                ],
+                'reverseproxy_deferdie_reverse_proxy' => [
+                    'external' => [
+                        'name' => 'reverseproxy_deferdie_reverse_proxy'
+                    ]
                 ]
             ],
             'volumes' => [
@@ -216,6 +222,29 @@ class DockerInit extends Command
             ],
             'container_name' => $this->appName .'_node'
         ];
+
+        $hostQuestion = new Question(
+            'Please enter the host address e.g. foo.test : '
+        );
+
+        $hostQuestion->setValidator(function ($answer) {
+            if (!is_string($answer))
+            {
+                throw new \RuntimeException(
+                    'Please set a hostname'
+                );
+            }
+
+            return $answer;
+        });
+
+        $helper = $this->getHelper('question');
+
+        $hostQuestion->setMaxAttempts(10);
+
+        $hostQuestion = $helper->ask($input, $output, $hostQuestion);
+
+        $hostName = $hostQuestion;
         
         $nginxContainer = [
             'build' => [
@@ -226,9 +255,14 @@ class DockerInit extends Command
             'volumes' => ['.:/var/www/html'],
             'ports' => ['80:80'],
             'networks' => [
-                'fdnet'
+                'fdnet',
+                'reverseproxy_deferdie_reverse_proxy'
             ],
-            'container_name' => $this->appName .'_nginx'
+            'container_name' => $this->appName .'_nginx',
+            'environment' => [
+                'VIRTUAL_HOST='.$hostName,
+                'VIRTUAL_PORT=80'
+            ]
         ];
         
         $phpContainer = [
@@ -251,18 +285,42 @@ class DockerInit extends Command
             ],
             'image' => 'deferdie/app',
             'volumes' => ['.:/var/www/html'],
-            'networks' => [
-                'fdnet'
-            ],
+            'networks' => ['fdnet'],
             'container_name' => $this->appName .'_app'
         ];
+
+        // Nginx reverse proxy port
+        $portQuestion = new Question(
+            'Please set external port for nginx - This is just for the reverse proxy, you can still access your site via foo.test : ',
+            '8888'
+        );
+
+        $portQuestion->setValidator(function ($answer) {
+            if (!is_string($answer))
+            {
+                throw new \RuntimeException(
+                    'Please set a port'
+                );
+            }
+
+            return $answer;
+        });
+
+        $helper = $this->getHelper('question');
+
+        $portQuestion->setMaxAttempts(10);
+
+        $portQuestion = $helper->ask($input, $output, $portQuestion);;
+
+        $nginxContainer['ports'] = ["$portQuestion:80"];
 
         // Set default containers
         $build['services']['app'] = $appContainer;
         $build['services']['php'] = $phpContainer;
         $build['services']['nginx'] = $nginxContainer;
         $build['services']['node'] = $nodeContainer;
-
+        
+        
         $helper = $this->getHelper('question');
 
         $question = new ChoiceQuestion(
@@ -278,6 +336,26 @@ class DockerInit extends Command
         if($answer == 'yes')
         {
             $build['services']['mysql'] = $this->mysqlConfig();
+
+                $portQuestion = new Question(
+                'Please set external port for mysql - to access this database in Workbench, Heidi etc, please use this port : ',
+                '3307'
+            );
+
+            $portQuestion->setValidator(function ($answer) {
+                if (!is_string($answer))
+                {
+                    throw new \RuntimeException(
+                        'Please set a port'
+                    );
+                }
+
+                return $answer;
+            });
+
+            $portQuestion = $helper->ask($input, $output, $portQuestion);;
+
+            $build['services']['mysql']['ports'] = ["$portQuestion:80"];
         }
 
         $question = new ChoiceQuestion(

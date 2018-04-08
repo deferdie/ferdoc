@@ -14,6 +14,9 @@ $app->add(new Deferdie\Docker\Console\RunContainers);
 // ferdoc stop
 $app->add(new Deferdie\Docker\Console\StopContainers);
 
+// ferdoc build
+$app->add(new Deferdie\Docker\Console\BuildContainers);
+
 // ferdoc composer install
 $app->add(new Deferdie\Docker\Console\ComposerInstall);
 
@@ -28,5 +31,8 @@ $app->add(new Deferdie\Docker\Console\TestPhpUnit);
 
 // ferdoc artisan
 $app->add(new Deferdie\Docker\Console\Artisan);
+
+// ferdoc proxy
+$app->add(new Deferdie\Docker\Console\ReverseProxy\ReverseProxyCommand);
 
 $app->run();
