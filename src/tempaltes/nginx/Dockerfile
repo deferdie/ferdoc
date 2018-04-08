@@ -11,7 +11,7 @@ ENV LANGUAGE en_US:en
 ENV LC_ALL en_US.UTF-8
 
 RUN apt-get update \
-    && apt-get install -y nginx curl zip git \
+    && apt-get install -y nginx \
     && mkdir /run/php \ 
     && echo "daemon off;" >> /etc/nginx/nginx.conf \
     && ln -sf /dev/stdout /var/log/nginx/access.log \
@@ -22,4 +22,4 @@ COPY default /etc/nginx/sites-enabled/default
 
 EXPOSE 80
 
-CMD ["nginx"]
+CMD [ "nginx" ]

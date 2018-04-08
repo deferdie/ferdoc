@@ -198,24 +198,46 @@ $app->register('docker')
                 {
                     mkdir($dockerDir .'node');
                 }
+                
+                if(!is_dir($dockerDir .'nginx'))
+                {
+                    mkdir($dockerDir .'nginx');
+                }
+
+                if(!is_dir($dockerDir .'php'))
+                {
+                    mkdir($dockerDir .'php');
+                }
 
                 
                 $buildFile = __DIR__.directorySeperator().'src'.directorySeperator().'tempaltes'.directorySeperator().'build';
-                $nodeDockerFile = __DIR__.directorySeperator().'src'.directorySeperator().'tempaltes'.directorySeperator().'node'.directorySeperator().'Dockerfile';
                 
                 // Create the build file from the tempalte
                 copy($buildFile, $dockerDir.'build');
                 $output->writeln('<info>Created build file</info>');
                 chmod($buildFile, 777);
                 
+                // App
+                copy(__DIR__.directorySeperator().'src'.directorySeperator().'tempaltes'.directorySeperator().'app'.directorySeperator().'Dockerfile', $dockerDir.'app'.directorySeperator().'Dockerfile');
+                $output->writeln('<info>App files created</info>');
+
+                // Nginx
+                copy(__DIR__.directorySeperator().'src'.directorySeperator().'tempaltes'.directorySeperator().'nginx'.directorySeperator().'default', $dockerDir.'nginx'.directorySeperator().'default');
+                copy(__DIR__.directorySeperator().'src'.directorySeperator().'tempaltes'.directorySeperator().'nginx'.directorySeperator().'Dockerfile', $dockerDir.'nginx'.directorySeperator().'Dockerfile');
+                $output->writeln('<info>Nginx files created</info>');
+
+
+                // PHP
+                copy(__DIR__.directorySeperator().'src'.directorySeperator().'tempaltes'.directorySeperator().'php'.directorySeperator().'php-fpm.conf', $dockerDir.'php'.directorySeperator().'php-fpm.conf');
+                copy(__DIR__.directorySeperator().'src'.directorySeperator().'tempaltes'.directorySeperator().'php'.directorySeperator().'www.conf', $dockerDir.'app'.directorySeperator().'www.conf');
+                copy(__DIR__.directorySeperator().'src'.directorySeperator().'tempaltes'.directorySeperator().'php'.directorySeperator().'Dockerfile', $dockerDir.'app'.directorySeperator().'Dockerfile');
+                $output->writeln('<info>PHP files created</info>');
+                
+                // Node
+                $nodeDockerFile = __DIR__.directorySeperator().'src'.directorySeperator().'tempaltes'.directorySeperator().'node'.directorySeperator().'Dockerfile';
                 copy($nodeDockerFile, $dockerDir.'node'.directorySeperator().'Dockerfile');
                 $output->writeln('<info>Created node Dockerfile</info>');
                 
-                copy(__DIR__.directorySeperator().'src'.directorySeperator().'tempaltes'.directorySeperator().'app'.directorySeperator().'default', $dockerDir.'app'.directorySeperator().'default');
-                copy(__DIR__.directorySeperator().'src'.directorySeperator().'tempaltes'.directorySeperator().'app'.directorySeperator().'Dockerfile', $dockerDir.'app'.directorySeperator().'Dockerfile');
-                copy(__DIR__.directorySeperator().'src'.directorySeperator().'tempaltes'.directorySeperator().'app'.directorySeperator().'php-fpm.conf', $dockerDir.'app'.directorySeperator().'php-fpm.conf');
-                copy(__DIR__.directorySeperator().'src'.directorySeperator().'tempaltes'.directorySeperator().'app'.directorySeperator().'supervisord.conf', $dockerDir.'app'.directorySeperator().'supervisord.conf');
-                                
                 $build = [
                     'version' => '2',
                     'services' => [],
@@ -234,7 +256,7 @@ $app->register('docker')
                     ]
                 ];
 
-                $node = [
+                $nodeContainer = [
                     'build' => [
                         'context' => './docker/node',
                         'dockerfile' => 'dockerfile'
@@ -243,7 +265,36 @@ $app->register('docker')
                     'volumes' => ['.:/var/www/html'],
                     'networks' => [
                         'fdnet'
-                    ]
+                    ],
+                    'container_name' => $appName .'_node'
+                ];
+                
+                $nginxContainer = [
+                    'build' => [
+                        'context' => './docker/nginx',
+                        'dockerfile' => 'dockerfile'
+                    ],
+                    'image' => 'deferdie/nginx',
+                    'volumes' => ['.:/var/www/html'],
+                    'ports' => ['80:80'],
+                    'networks' => [
+                        'fdnet'
+                    ],
+                    'container_name' => $appName .'_nginx'
+                ];
+                
+                $phpContainer = [
+                    'build' => [
+                        'context' => './docker/nginx',
+                        'dockerfile' => 'dockerfile'
+                    ],
+                    'image' => 'deferdie/nginx',
+                    'volumes' => ['.:/var/www/html'],
+                    'ports' => ['80:80'],
+                    'networks' => [
+                        'fdnet'
+                    ],
+                    'container_name' => $appName .'_php'
                 ];
                 
                 $appContainer = [
@@ -253,14 +304,18 @@ $app->register('docker')
                     ],
                     'image' => 'deferdie/app',
                     'volumes' => ['.:/var/www/html'],
-                    'ports' => ['80:80'],
                     'networks' => [
                         'fdnet'
                     ],
-                    'container_name' => $appName
+                    'container_name' => $appName .'_app'
                 ];
 
+                // Set default containers
                 $build['services']['app'] = $appContainer;
+                $build['services']['php'] = $phpContainer;
+                $build['services']['nginx'] = $nginxContainer;
+                $build['services']['node'] = $nodeContainer;
+
                 
                 $question = new ChoiceQuestion(
                     'Would you like mysql?',
@@ -291,8 +346,6 @@ $app->register('docker')
                 {
                     $build['services']['redis'] = redisConfig();
                 }
-
-                $build['services']['node'] = $node;
 
                 // Set the docker-compose file
                 $yamlFile = fopen($workfolder.directorySeperator().'docker-compose.yml', "w") or die("Unable to open file!");
@@ -373,10 +426,10 @@ function mysqlConfig()
         ],
         'networks' => [
             'fdnet'
-        ]
+        ],
+        'container_name' => $appName .'_mysql'
     ];
 }
-
 
 // Get Redis config
 function redisConfig()
@@ -388,9 +441,8 @@ function redisConfig()
         ],
         'networks' => [
             'fdnet'
-        ]
+        ],
+        'container_name' => $appName .'_mysql'
     ];
 }
-
-
 $app->run();
