@@ -285,12 +285,11 @@ $app->register('docker')
                 
                 $phpContainer = [
                     'build' => [
-                        'context' => './docker/nginx',
+                        'context' => './docker/php',
                         'dockerfile' => 'dockerfile'
                     ],
-                    'image' => 'deferdie/nginx',
+                    'image' => 'deferdie/php',
                     'volumes' => ['.:/var/www/html'],
-                    'ports' => ['80:80'],
                     'networks' => [
                         'fdnet'
                     ],
@@ -442,7 +441,7 @@ function redisConfig($appName)
         'networks' => [
             'fdnet'
         ],
-        'container_name' => $appName .'_mysql'
+        'container_name' => $appName .'_redis'
     ];
 }
 $app->run();
