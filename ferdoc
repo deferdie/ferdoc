@@ -229,8 +229,8 @@ $app->register('docker')
 
                 // PHP
                 copy(__DIR__.directorySeperator().'src'.directorySeperator().'tempaltes'.directorySeperator().'php'.directorySeperator().'php-fpm.conf', $dockerDir.'php'.directorySeperator().'php-fpm.conf');
-                copy(__DIR__.directorySeperator().'src'.directorySeperator().'tempaltes'.directorySeperator().'php'.directorySeperator().'www.conf', $dockerDir.'app'.directorySeperator().'www.conf');
-                copy(__DIR__.directorySeperator().'src'.directorySeperator().'tempaltes'.directorySeperator().'php'.directorySeperator().'Dockerfile', $dockerDir.'app'.directorySeperator().'Dockerfile');
+                copy(__DIR__.directorySeperator().'src'.directorySeperator().'tempaltes'.directorySeperator().'php'.directorySeperator().'www.conf', $dockerDir.'php'.directorySeperator().'www.conf');
+                copy(__DIR__.directorySeperator().'src'.directorySeperator().'tempaltes'.directorySeperator().'php'.directorySeperator().'Dockerfile', $dockerDir.'php'.directorySeperator().'Dockerfile');
                 $output->writeln('<info>PHP files created</info>');
                 
                 // Node
