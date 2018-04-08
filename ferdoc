@@ -329,7 +329,7 @@ $app->register('docker')
 
                 if($answer == 'yes')
                 {
-                    $build['services']['mysql'] = mysqlConfig();
+                    $build['services']['mysql'] = mysqlConfig($appName);
                 }
 
                 $question = new ChoiceQuestion(
@@ -344,7 +344,7 @@ $app->register('docker')
                 
                 if($answer == 'yes')
                 {
-                    $build['services']['redis'] = redisConfig();
+                    $build['services']['redis'] = redisConfig($appName);
                 }
 
                 // Set the docker-compose file
@@ -408,7 +408,7 @@ function directorySeperator()
 }
 
 // Get Mysql config
-function mysqlConfig()
+function mysqlConfig($appName)
 {
     return [
         'image' => 'mysql:5.7',
@@ -432,7 +432,7 @@ function mysqlConfig()
 }
 
 // Get Redis config
-function redisConfig()
+function redisConfig($appName)
 {
     return [
         'image' => 'redis:alpine',
