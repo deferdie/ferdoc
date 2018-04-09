@@ -133,6 +133,9 @@ class DockerInit extends Command
                 
                 // Generate docker-compose.yml
                 $this->generateDockerCompose($input, $output);
+
+                $output->writeln('<comment>Run ferdoc build to create your application containers</comment>');
+
             }else{
                 $output->writeln('<warning>Not generating files!</warning>');
             }

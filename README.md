@@ -32,23 +32,23 @@ RUN
 
     ferdoc docker init
     
-After you finish answering the questions you will have a docker-compose.yml file in your project root and a docker directory containing all of your containers
+After you finish answering the questions you will have a docker-compose.yml file in your project root and a docker directory containing all of your containers.
 
 RUN
 
     ferdoc build
 
-This build the images for your container
+This builds the images for your container.
 
 RUN
 
     ferdoc run
 
-Starts all of your containers, you can now access the site in your browser
+Starts all of your containers, you can now access the site in your browser.
 
 
 ## Multiple websites
-Run the same steps as above with different ports for nginx and mysql then run the below command
+Run the same steps as above with different ports for nginx and mysql then run the below command.
 
 RUN
 
