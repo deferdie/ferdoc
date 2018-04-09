@@ -1,6 +1,6 @@
 <?php
 
-namespace Deferdie\Docker\Console;
+namespace Deferdie\Docker\Console\Commands;
 
 use Symfony\Component\Process\Exception\ProcessFailedException;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -8,21 +8,19 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Process\Process;
 
-class TestPhpUnit extends Command
+class RunContainers extends Command
 {
     // Set the command properties
     protected function configure()
     {
-        $this->setName('test')
-            ->setDescription('Runs PHP unit');            
+        $this->setName('run')
+            ->setDescription('Start all of the contianers');            
     }
 
     // Execute the command
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-         $process = new Process('docker-compose run --rm -w /var/www/html app ./vendor/bin/phpunit');
-
-        $output->writeln('Running Tests (Good luck!)');
+        $process = new Process('docker-compose up -d');
 
         $process->setTimeout(0);
 

@@ -10,31 +10,31 @@ if (file_exists(__DIR__.'/../../autoload.php')) {
 $app = new Symfony\Component\Console\Application('ferdoc, a Docker helper for PHP');
 
 // ferdoc docker init
-$app->add(new Deferdie\Docker\Console\DockerInit);
+$app->add(new Deferdie\Docker\Console\Commands\DockerInit);
 
 // ferdoc run
-$app->add(new Deferdie\Docker\Console\RunContainers);
+$app->add(new Deferdie\Docker\Console\Commands\RunContainers);
 
 // ferdoc stop
-$app->add(new Deferdie\Docker\Console\StopContainers);
+$app->add(new Deferdie\Docker\Console\Commands\StopContainers);
 
 // ferdoc build
-$app->add(new Deferdie\Docker\Console\BuildContainers);
+$app->add(new Deferdie\Docker\Console\Commands\BuildContainers);
 
 // ferdoc composer install
-$app->add(new Deferdie\Docker\Console\ComposerInstall);
+$app->add(new Deferdie\Docker\Console\Commands\ComposerInstall);
 
 // ferdoc NPM install
-$app->add(new Deferdie\Docker\Console\NPMInstall);
+$app->add(new Deferdie\Docker\Console\Commands\NPMInstall);
 
 // ferdoc NPM watch
-$app->add(new Deferdie\Docker\Console\NPMWatch);
+$app->add(new Deferdie\Docker\Console\Commands\NPMWatch);
 
 // ferdoc test
-$app->add(new Deferdie\Docker\Console\TestPhpUnit);
+$app->add(new Deferdie\Docker\Console\Commands\TestPhpUnit);
 
 // ferdoc artisan
-$app->add(new Deferdie\Docker\Console\Artisan);
+$app->add(new Deferdie\Docker\Console\Commands\Artisan);
 
 // ferdoc proxy
 $app->add(new Deferdie\Docker\Console\ReverseProxy\ReverseProxyCommand);
