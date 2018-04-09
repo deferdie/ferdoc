@@ -1,6 +1,6 @@
 <?php
 
-namespace Deferdie\Docker\Console;
+namespace Deferdie\Docker\Console\Commands;
 
 use Symfony\Component\Process\Exception\ProcessFailedException;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -8,19 +8,21 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Process\Process;
 
-class RunContainers extends Command
+class NPMInstall extends Command
 {
     // Set the command properties
     protected function configure()
     {
-        $this->setName('run')
-            ->setDescription('Start all of the contianers');            
+        $this->setName('npm install')
+            ->setDescription('Runs NPM install');            
     }
 
     // Execute the command
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        $process = new Process('docker-compose up -d');
+        $process = new Process('docker-compose run --rm -w /var/www/html node npm install');
+
+        $output->writeln('Running NPM install, please wait');
 
         $process->setTimeout(0);
 

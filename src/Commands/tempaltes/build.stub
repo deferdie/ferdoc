@@ -1,0 +1,4 @@
+docker build -f app/Dockerfile -t :APP_NAME:/app:latest ./app
+docker build -f nginx/Dockerfile -t :APP_NAME:/nginx:latest ./nginx
+docker build -f php/Dockerfile -t :APP_NAME:/php:latest ./php
+docker build -f node/Dockerfile -t :APP_NAME:/node:latest ./node

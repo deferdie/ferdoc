@@ -1,6 +1,6 @@
 <?php
 
-namespace Deferdie\Docker\Console;
+namespace Deferdie\Docker\Console\Commands;
 
 use Symfony\Component\Console\Question\ConfirmationQuestion;
 use Symfony\Component\Console\Question\ChoiceQuestion;
@@ -51,11 +51,11 @@ class DockerInit extends Command
                 
                 if(getenv('APP_NAME') != null)
                 {
-                    $this->appName = getenv('APP_NAME');
+                    $this->appName = strtolower(getenv('APP_NAME'));
                 }
             }else
             {
-                $this->appName = basename($this->workfolder);
+                $this->appName = strtolower(basename($this->workfolder));
             }
             
         }catch(Exception $e)
@@ -177,12 +177,24 @@ class DockerInit extends Command
         copy($this->templateDirectory.'node'.$this->directorySeperator().'Dockerfile', $this->dockerDir.$this->directorySeperator().'node'.$this->directorySeperator().'Dockerfile');
     }
 
+    // Set the build file
     private function copyBuildFile()
     {
-        $buildFile = $this->templateDirectory.'build';
+        $buildFileLocation = $this->dockerDir.$this->directorySeperator().'build';
 
-        // Create the build file from the tempalte
-        copy($buildFile, $this->dockerDir.$this->directorySeperator().'build');
+        if(file_exists($buildFileLocation))
+        {
+            unlink($buildFileLocation);
+        }
+
+        $stub = new StubGenerator(
+            $this->templateDirectory.$this->directorySeperator().'build.stub',
+            $buildFileLocation
+        );
+
+        $stub->render([
+            ':APP_NAME:' => $this->appName,
+        ]);
     }
 
     private function generateDockerCompose($input, $output)
@@ -215,7 +227,7 @@ class DockerInit extends Command
                 'context' => './docker/node',
                 'dockerfile' => 'Dockerfile'
             ],
-            'image' => 'deferdie/node',
+            'image' => $this->appName.'/node',
             'volumes' => ['.:/var/www/html'],
             'networks' => [
                 'fdnet'
@@ -251,7 +263,7 @@ class DockerInit extends Command
                 'context' => './docker/nginx',
                 'dockerfile' => 'Dockerfile'
             ],
-            'image' => 'deferdie/nginx',
+            'image' => $this->appName.'/nginx',
             'volumes' => ['.:/var/www/html'],
             'ports' => ['80:80'],
             'networks' => [
@@ -270,7 +282,7 @@ class DockerInit extends Command
                 'context' => './docker/php',
                 'dockerfile' => 'Dockerfile'
             ],
-            'image' => 'deferdie/php',
+            'image' => $this->appName.'/php',
             'volumes' => ['.:/var/www/html'],
             'networks' => [
                 'fdnet'
@@ -283,7 +295,7 @@ class DockerInit extends Command
                 'context' => './docker/app',
                 'dockerfile' => 'Dockerfile'
             ],
-            'image' => 'deferdie/app',
+            'image' => $this->appName.'/app',
             'volumes' => ['.:/var/www/html'],
             'networks' => ['fdnet'],
             'container_name' => $this->appName .'_app'
@@ -376,7 +388,7 @@ class DockerInit extends Command
         // Set the docker-compose file
         $yamlFile = fopen($this->workfolder.$this->directorySeperator().'docker-compose.yml', "w") or die("Unable to open file!");
 
-        fwrite($yamlFile, Yaml::dump($build, 2, 2));
+        fwrite($yamlFile, Yaml::dump($build, 20, 2));
         
         fclose($yamlFile);
     }

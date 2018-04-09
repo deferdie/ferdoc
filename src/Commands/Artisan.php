@@ -1,6 +1,6 @@
 <?php
 
-namespace Deferdie\Docker\Console;
+namespace Deferdie\Docker\Console\Commands;
 
 use Symfony\Component\Process\Exception\ProcessFailedException;
 use Symfony\Component\Console\Output\OutputInterface;
