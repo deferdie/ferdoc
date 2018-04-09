@@ -1,4 +1,0 @@
-docker build -f app/Dockerfile -t deferdie/app:latest ./app
-docker build -f nginx/Dockerfile -t deferdie/nginx:latest ./nginx
-docker build -f php/Dockerfile -t deferdie/php:latest ./php
-docker build -f node/Dockerfile -t deferdie/node:latest ./node
