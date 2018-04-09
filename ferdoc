@@ -24,11 +24,8 @@ $app->add(new Deferdie\Docker\Console\Commands\BuildContainers);
 // ferdoc composer install
 $app->add(new Deferdie\Docker\Console\Commands\ComposerInstall);
 
-// ferdoc NPM install
-$app->add(new Deferdie\Docker\Console\Commands\NPMInstall);
-
-// ferdoc NPM watch
-$app->add(new Deferdie\Docker\Console\Commands\NPMWatch);
+// ferdoc NPM
+$app->add(new Deferdie\Docker\Console\Commands\NPM);
 
 // ferdoc test
 $app->add(new Deferdie\Docker\Console\Commands\TestPhpUnit);
