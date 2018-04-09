@@ -7,6 +7,7 @@ use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputOption;
+use Symfony\Component\Console\Question\Question;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Process\Process;
 
@@ -16,38 +17,28 @@ class Artisan extends Command
     protected function configure()
     {
         $this->setName('artisan')
-            ->setDescription('Runs php artisan')
-            ->addArgument('argument', InputArgument::IS_ARRAY, InputOption::VALUE_OPTIONAL)
-            ->addOption('flags', InputOption::VALUE_REQUIRED);
+            ->setDescription('Runs php artisan');
     }
 
     // Execute the command
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        $arg = '';
+        $helper = $this->getHelper('question');
 
-        foreach($input->getArgument('argument') as $item)
-        {
-            $arg .= $item . ' ';
-        }
+        $output->writeln('<info>You can run things like, make:controller, make:event</info>');
 
-        $dash = '';
+        $question = new Question('Run : ');
 
-        if($input->getOption('flags') != null)
-        {
-            $dash = '-';
-        }
+        $answer = $helper->ask($input, $output, $question);
 
-        $process = new Process('docker-compose run --rm -w /var/www/html app php artisan '. $arg . ' ' . $dash . $input->getOption('flags'));
+        $output->writeln('<info>Running please wait...</info>');
+
+        $process = new Process('docker-compose run --rm -w /var/www/html app php artisan '.$answer);
 
         $process->setTimeout(0);
 
         $process->run(function ($type, $buffer) {
-            if (Process::ERR === $type) {
-                echo 'ERR > '.$buffer;
-            } else {
-                echo 'OUT > '.$buffer;
-            }
+           echo $buffer;
         });
 
         $output->writeln($process->getOutput());
