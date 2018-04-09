@@ -17,6 +17,13 @@ If on Windows please run this in powershell: $Env:COMPOSE_CONVERT_WINDOWS_PATHS=
 ### Usage
 CD in your project folder
 
+### create a .env file
+Within your .env file add the following line: 
+
+  APP_NAME=YOURAPPNAME
+
+Please make sute that your APP_NAME is unique for each project.
+
 RUN
 
     ferdoc docker init
