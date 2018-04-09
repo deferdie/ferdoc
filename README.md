@@ -13,6 +13,10 @@ This application also makes use of jwilder/nginx-proxy which will allow you to a
 If on Windows please run this in powershell: $Env:COMPOSE_CONVERT_WINDOWS_PATHS=1
 
     $Env:COMPOSE_CONVERT_WINDOWS_PATHS=1
+    
+If on Linux based systems please run this in bash: export COMPOSE_CONVERT_WINDOWS_PATHS=1
+
+    export COMPOSE_CONVERT_WINDOWS_PATHS=1
 
 ### Usage
 CD in your project folder
