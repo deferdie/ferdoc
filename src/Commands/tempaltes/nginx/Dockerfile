@@ -15,7 +15,9 @@ RUN apt-get update \
     && mkdir /run/php \ 
     && echo "daemon off;" >> /etc/nginx/nginx.conf \
     && ln -sf /dev/stdout /var/log/nginx/access.log \
-    && ln -sf /dev/stderr /var/log/nginx/error.log
+    && ln -sf /dev/stderr /var/log/nginx/error.log \
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
 COPY default /etc/nginx/sites-avaliable/default
 COPY default /etc/nginx/sites-enabled/default

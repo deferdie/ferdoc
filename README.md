@@ -1,6 +1,8 @@
 # ferdoc
 A Docker helper for Laravel
 
+[![Latest Stable Version](https://poser.pugx.org/deferdie/ferdoc/v/stable)](https://packagist.org/packages/deferdie/ferdoc) [![License](https://poser.pugx.org/deferdie/ferdoc/license)](https://packagist.org/packages/deferdie/ferdoc) [![Total Downloads](https://poser.pugx.org/deferdie/ferdoc/downloads)](https://packagist.org/packages/deferdie/ferdoc)
+
 ## About ferdoc
 
 A simple application that allows you to run multiple Laravel application within its own docker container. 

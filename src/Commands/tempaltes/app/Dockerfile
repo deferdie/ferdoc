@@ -17,4 +17,7 @@ RUN apt-get update \
     && apt-get install -y php7.2-fpm php7.2-cli php7.2-gd php7.2-mysql \
     php7.2-pgsql php7.2-imap php-memcached php7.2-mbstring php7.2-xml php7.2-curl php7.2-sqlite3 \
     && php -r "readfile('http://getcomposer.org/installer');" | php -- --install-dir=/usr/bin --filename=composer \
-    && mkdir /run/php
+    && mkdir /run/php \
+    && apt-get remove -y --purge software-properties-common \
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
