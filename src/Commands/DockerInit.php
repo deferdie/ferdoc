@@ -370,7 +370,7 @@ class DockerInit extends Command
 
             $portQuestion = $helper->ask($input, $output, $portQuestion);;
 
-            $build['services']['mysql']['ports'] = ["$portQuestion:80"];
+            $build['services']['mysql']['ports'] = ["$portQuestion:3306"];
         }
 
         $question = new ChoiceQuestion(
