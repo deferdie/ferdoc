@@ -11,10 +11,13 @@ use Symfony\Component\Console\Input\InputOption;
 use SebastiaanLuca\StubGenerator\StubGenerator;
 use Symfony\Component\Console\Question\Question;
 use Symfony\Component\Console\Command\Command;
+use Deferdie\Docker\Console\CommonTrait;
 use Symfony\Component\Yaml\Yaml;
 
 class DockerInit extends Command
 {
+    use CommonTrait;
+    
     // The project work directory
     private $workFolder = null;
 
@@ -433,16 +436,6 @@ class DockerInit extends Command
             ],
             'container_name' => $this->appName .'_redis'
         ];
-    }
-   
-    // Directory directory
-    private function directorySeperator()
-    {
-        if (strtoupper(substr(PHP_OS, 0, 3)) === 'WIN') {
-            return '\\';
-        } else {
-            return '/';
-        }
     }
 
     private function makeDir($target, $folder)
